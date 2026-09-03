@@ -14,163 +14,21 @@
         margin: 0;
         width: 100%;
         height: 100%;
-        background: #f2f2f2;
-        font-family: Arial, sans-serif;
       }
 
       .pdf-viewer {
         width: 100%;
-        min-height: 100vh;
-        padding: 0;
-      }
-
-      .pdf-fallback-frame {
-        width: 100%;
         height: 100vh;
         border: 0;
         display: block;
-        background: transparent;
-      }
-
-      .page {
-        width: 100%;
-        margin: 0;
-        background: transparent;
-        box-shadow: none;
-      }
-
-      .page canvas {
-        display: block;
-        width: 100%;
-        height: auto;
-      }
-
-      .status {
-        width: min(960px, 100%);
-        margin: 0 auto;
-        padding: 16px;
-        color: #333333;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .download-btn {
-        position: fixed;
-        right: 12px;
-        bottom: 12px;
-        z-index: 20;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 14px;
-        border-radius: 8px;
-        border: 0;
-        background: hsl(328, 98%, 47%);
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      }
-
-      .download-btn:hover,
-      .download-btn:focus-visible {
-        background: hsl(328, 98%, 40%);
       }
     </style>
   </head>
-  <body>
-    <main class="pdf-viewer" id="pdf-viewer" aria-live="polite"></main>
-    <p class="status" id="status">PDF wird geladen...</p>
-    <a class="download-btn" href="pdf/Anleitung_hy_alarm.pdf" download>
-      PDF herunterladen
-    </a>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-      const pdfjsLib = window["pdfjs-dist/build/pdf"];
-
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-      const pdfUrl = "pdf/Anleitung_hy_alarm.pdf";
-      const viewer = document.getElementById("pdf-viewer");
-      const status = document.getElementById("status");
-
-      const renderScale = () => {
-        const isMobile = window.matchMedia("(max-width: 760px)").matches;
-        return isMobile ? 1.15 : 1.35;
-      };
-
-      async function renderPdfDocument(pdf) {
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-          const page = await pdf.getPage(pageNumber);
-          const viewport = page.getViewport({ scale: renderScale() });
-
-          const pageWrap = document.createElement("section");
-          pageWrap.className = "page";
-
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d", { alpha: false });
-
-          canvas.width = Math.floor(viewport.width);
-          canvas.height = Math.floor(viewport.height);
-
-          pageWrap.appendChild(canvas);
-          viewer.appendChild(pageWrap);
-
-          await page.render({
-            canvasContext: context,
-            viewport,
-          }).promise;
-        }
-      }
-
-      function renderLocalFallback() {
-        viewer.innerHTML = "";
-        const iframe = document.createElement("iframe");
-        iframe.className = "pdf-fallback-frame";
-        iframe.src = pdfUrl;
-        iframe.title = "PDF Viewer";
-        viewer.appendChild(iframe);
-        status.classList.add("hidden");
-      }
-
-      async function renderPdf() {
-        if (window.location.protocol === "file:") {
-          renderLocalFallback();
-          return;
-        }
-
-        let loadingTask;
-        try {
-          loadingTask = pdfjsLib.getDocument(pdfUrl);
-          const pdf = await loadingTask.promise;
-
-          await renderPdfDocument(pdf);
-
-          status.classList.add("hidden");
-        } catch (error) {
-          try {
-            viewer.innerHTML = "";
-            loadingTask = pdfjsLib.getDocument({ url: pdfUrl, disableWorker: true });
-            const pdf = await loadingTask.promise;
-
-            await renderPdfDocument(pdf);
-
-            status.classList.add("hidden");
-          } catch (fallbackError) {
-            status.innerHTML =
-              'PDF konnte nicht direkt geladen werden. <a href="pdf/Anleitung_hy_alarm.pdf">PDF öffnen</a>';
-            console.error(error);
-            console.error(fallbackError);
-          }
-        }
-      }
-
-      renderPdf();
-    </script>
+  <body><!-- Hier den Pfad zur PDF-Datei angeben -->
+    <iframe
+      class="pdf-viewer"
+      src="pdf/Kundenanleitung_HY_Alarm.pdf" 
+      title="PDF Viewer"
+    ></iframe>
   </body>
 </html>
