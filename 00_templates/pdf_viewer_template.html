@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF Viewer</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .pdf-viewer {
+        width: 100%;
+        height: 100vh;
+        border: 0;
+        display: block;
+      }
+    </style>
+  </head>
+  <body><!-- Hier den Pfad zur PDF-Datei angeben -->
+    <iframe
+      class="pdf-viewer"
+      src="file_path.pdf" 
+      title="PDF Viewer"
+    ></iframe>
+  </body>
+</html>
