@@ -14,21 +14,96 @@
         margin: 0;
         width: 100%;
         height: 100%;
+        background: #f2f2f2;
+        font-family: Arial, sans-serif;
       }
 
       .pdf-viewer {
         width: 100%;
-        height: 100vh;
-        border: 0;
+        min-height: 100vh;
+        padding: 10px;
+      }
+
+      .page {
+        width: min(960px, 100%);
+        margin: 0 auto 10px;
+        background: #ffffff;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .page canvas {
         display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .status {
+        width: min(960px, 100%);
+        margin: 0 auto;
+        padding: 16px;
+        color: #333333;
+      }
+
+      .hidden {
+        display: none;
       }
     </style>
   </head>
   <body>
-    <iframe
-      class="pdf-viewer"
-      src="pdf/Anleitung_hy_alarm.pdf"
-      title="PDF Viewer"
-    ></iframe>
+    <main class="pdf-viewer" id="pdf-viewer" aria-live="polite"></main>
+    <p class="status" id="status">PDF wird geladen...</p>
+
+    <script type="module">
+      import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/build/pdf.min.mjs";
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs";
+
+      const pdfUrl = "pdf/Anleitung_hy_alarm.pdf";
+      const viewer = document.getElementById("pdf-viewer");
+      const status = document.getElementById("status");
+
+      const renderScale = () => {
+        const isMobile = window.matchMedia("(max-width: 760px)").matches;
+        return isMobile ? 1.15 : 1.35;
+      };
+
+      async function renderPdf() {
+        try {
+          const loadingTask = pdfjsLib.getDocument(pdfUrl);
+          const pdf = await loadingTask.promise;
+
+          for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+            const page = await pdf.getPage(pageNumber);
+            const viewport = page.getViewport({ scale: renderScale() });
+
+            const pageWrap = document.createElement("section");
+            pageWrap.className = "page";
+
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d", { alpha: false });
+
+            canvas.width = Math.floor(viewport.width);
+            canvas.height = Math.floor(viewport.height);
+
+            pageWrap.appendChild(canvas);
+            viewer.appendChild(pageWrap);
+
+            await page.render({
+              canvasContext: context,
+              viewport,
+            }).promise;
+          }
+
+          status.classList.add("hidden");
+        } catch (error) {
+          status.innerHTML =
+            'PDF konnte nicht direkt geladen werden. <a href="pdf/Anleitung_hy_alarm.pdf">PDF öffnen</a>';
+          console.error(error);
+        }
+      }
+
+      renderPdf();
+    </script>
   </body>
 </html>
